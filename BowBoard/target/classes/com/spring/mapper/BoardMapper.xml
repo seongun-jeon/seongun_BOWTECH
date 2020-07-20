@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+				 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.mapper.BoardMapper">
+
+	<resultMap type="java.util.HashMap" id="hashmapVO">
+		<result property="num" column="num" />
+		<result property="writer" column="writer" />
+		<result property="passwd" column="passwd" />
+		<result property="subject" column="subject" />
+		<result property="email" column="email" />
+		<result property="content" column="content" />
+		<result property="reg_date" column="reg_date" />
+		<result property="readcount" column="readcount" />
+		<result property="ref" column="ref" />
+		<result property="re_step" column="re_step" />
+		<result property="re_level" column="re_level" />
+		<result property="start" column="start" />
+		<result property="end" column="end" />
+	</resultMap>
+	
+	<resultMap type="com.spring.springboard2.BoardVO" id="BoardResultMap">
+		<result property="num" column="NUM" />
+		<result property="writer" column="WRITER" />
+		<result property="passwd" column="PASSWD" />
+		<result property="subject" column="SUBJECT" />
+		<result property="email" column="EMAIL" />
+		<result property="content" column="CONTENT" />
+		<result property="reg_date" column="REG_DATE" />
+		<result property="readcount" column="READCOUNT" />
+		<result property="ref" column="REF" />
+		<result property="re_step" column="RE_STEP" />
+		<result property="re_level" column="RE_LEVEL" 
+		/>
+		<result property="start" column="START" />
+		<result property="end" column="END" />
+	</resultMap>
+	
+	<select id="getArticles" resultMap="BoardResultMap" parameterType="Map">
+		SELECT * FROM (SELECT ROWNUM RNUM, NUM, WRITER, PASSWD, SUBJECT,   
+		CONTENT, REG_DATE, READCOUNT, REF, RE_STEP, RE_LEVEL FROM (SELECT * FROM  
+		BOARD ORDER BY REF DESC, RE_STEP ASC)) WHERE RNUM 
+		&gt;=#{start} AND RNUM &lt;=#{end}
+	</select>
+	
+	<select id="getArticleCount" resultType="int">
+		SELECT COUNT(*) FROM BOARD  
+	</select>
+	
+	<select id="getMaxNum" resultType="String">
+		SELECT MAX(NUM) FROM BOARD
+	</select>
+	
+	<select id="selectArticle" parameterType="int" resultMap="BoardResultMap">
+		SELECT * FROM BOARD WHERE NUM=#{num}
+	</select>
+	
+	<select id="getPasswd" parameterType="int" resultType="String">
+		SELECT PASSWD FROM BOARD WHERE NUM=#{num}
+	</select>
+	
+	
+	<insert id="insertArticle" parameterType="com.spring.springboard2.BoardVO">
+		<selectKey keyProperty="num" resultType="int" order="BEFORE">
+			SELECT BOARD_SEQ.nextval From DUAL
+		</selectKey>
+		INSERT INTO BOARD(NUM, WRITER, PASSWD, SUBJECT, CONTENT, REG_DATE, READCOUNT,
+		REF, RE_STEP, RE_LEVEL) VALUES
+		(#{num},#{writer},#{passwd},#{subject},#{content},#{reg_date},#{readcount},#{ref},#{re_step},#{re_level})
+	</insert>
+
+		
+	<update id="updateReStep" parameterType="com.spring.springboard2.BoardVO">
+		UPDATE BOARD SET RE_STEP = RE_STEP+1 WHERE REF=#{ref} AND RE_STEP &gt; #{re_step}
+	</update>
+	
+	<update id="updateArticle" parameterType="com.spring.springboard2.BoardVO">
+		UPDATE BOARD SET WRITER=#{writer}, PASSWD=#{passwd}, SUBJECT=#{subject}, EMAIL=#{email}, CONTENT=#{content} WHERE NUM=#{num}
+	</update>
+	
+	<update id="updateReadCount" parameterType="com.spring.springboard2.BoardVO">
+		UPDATE BOARD SET READCOUNT=#{readcount}+1 WHERE NUM=#{num}
+	</update>
+	
+
+	<delete id="deleteArticle" parameterType="int">
+		DELETE BOARD WHERE NUM=#{num}
+	</delete>
+	
+	<select id="articlesWriter" resultMap="BoardResultMap" parameterType="String">
+		SELECT * FROM BOARD WHERE WRITER=#{keyVal}
+	</select>
+	<select id="articlesSubject" resultMap="BoardResultMap" parameterType="String">
+		SELECT * FROM BOARD WHERE SUBJECT=#{keyVal}
+	</select>
+	<select id="articlesContent" resultMap="BoardResultMap" parameterType="String">
+		SELECT * FROM BOARD WHERE CONTENT=#{keyVal}
+	</select>
+</mapper>
